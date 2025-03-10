@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weekly Meal Planner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://images.pexels.com/photos/1640773/pexels-photo-1640773.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 1;
+    }
+    h1 {
+      text-align: center;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      /* width: 80%;  */
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    .dish-cell {
+      width: 250px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .lock-checkbox {
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+    /*Added this media through claude */
+    @media screen and (max-width: 90em) {
+  body {
+    font-size: 22px;
+    
+  }
+  
+  .container {
+    padding: 25px;
+  }
+  .addon-buttons {
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  h1 {
+    font-size: 32px;
+    margin-bottom: 30px;
+  }
+  
+  table {
+    font-size: 22px;
+    /* the height and weight will fill the container with the table, but an empty
+    column will appear
+    height: 100%;
+    width: 100%;
+    */
+  }
+  
+  th, td {
+    padding: 18px 12px;
+  }
+  
+  .dish-cell {
+    min-height: 70px;
+  }
+  
+  .lock-checkbox {
+    transform: scale(1.8);
+    margin: 8px;
+  }
+  
+  button {
+    padding: 18px 30px;
+    font-size: 24px;
+    width: 95%;
+    margin: 30px auto;
+    border-radius: 8px;
+  }
+  .small-btn {
+    padding: 10px 20px;
+    font-size: 18px;
+    width: 25%;
+    border-radius: 6px;
+  }
+}
+    /*
+    Use em instead of px. Maybe make this so that when user is using pc, 
+    it activates the code below
+    @media screen and (max-width: 90em) {
+      body {
+        padding: 10px;
+      }
+      .container {
+        padding: 100px;
+        background-color:yellow;
+      }
+      button {
+        width: 100%;
+        font-size: 14px;
+      }
+      .dish-cell {
+        width: 100%;
+      }
+      th, td {
+        padding: 5px;
+      }
+    }*/
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Cosa si mangia?</h1>
+    <button id="generateButton">Crea Menù</button>
+    <table id="planTable">
+      <thead>
+        <tr>
+          <th>Giorno</th>
+          <th>Piatto</th>
+          <th>Tieni</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Lunedì</td>
+          <td id="mondayDish" class="dish-cell"></td>
+          <td><input type="checkbox" id="mondayLock" class="lock-checkbox"></td>
+        </tr>
+        <tr>
+          <td>Martedì</td>
+          <td id="tuesdayDish" class="dish-cell"></td>
+          <td><input type="checkbox" id="tuesdayLock" class="lock-checkbox"></td>
+        </tr>
+        <tr>
+          <td>Mercoledì</td>
+          <td id="wednesdayDish" class="dish-cell"></td>
+          <td><input type="checkbox" id="wednesdayLock" class="lock-checkbox"></td>
+        </tr>
+        <tr>
+          <td>Giovedì</td>
+          <td id="thursdayDish" class="dish-cell"></td>
+          <td><input type="checkbox" id="thursdayLock" class="lock-checkbox"></td>
+        </tr>
+        <tr>
+          <td>Venerdì</td>
+          <td id="fridayDish" class="dish-cell"></td>
+          <td><input type="checkbox" id="fridayLock" class="lock-checkbox"></td>
+        </tr>
+        <tr>
+          <td>Sabato</td>
+          <td id="saturdayDish" class="dish-cell"></td>
+          <td><input type="checkbox" id="saturdayLock" class="lock-checkbox"></td>
+        </tr>
+        <tr>
+          <td>Domenica</td>
+          <td id="sundayDish" class="dish-cell"></td>
+          <td><input type="checkbox" id="sundayLock" class="lock-checkbox"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Array of 20 unique dishes
+    const dishes = [
+      "spada con pomodorini",
+      "salmone al forno",
+      "orata su un letto di patate al forno",
+      "zuppa",
+      "vellutata asparagi",
+      "vellutata broccoli",
+      "polpo alla griglia",
+      "pasta con spada e melanzane fritte",
+      "pasta con sugo di polpo",
+      "polpettone (polpette grandi)",
+      "arrosto di tacchino",
+      "risotto funghi",
+      "pollo con patate al forno",
+      "frittata con cipolla",
+      "roastbeef con patatine",
+      "carpaccio di sorana",
+      "gamberoni alla griglia",
+      "rana pescatrice con patate al forno",
+      "cosce di pollo al marsala",
+      "cosce di pollo alla birra",
+      "involtini di vitello, pancetta e scamorza",
+      "orata in padella con pomodorini",
+      "bigoli al ragù d'arna",
+      "lasagna",
+      "spezzatino con patate",
+      "lomito saltado",
+      "rigatoni con ragù",
+      "anatra all'arancia con purè",
+      "torta di patate, scamorza e prosciutto",
+      "parmigiana di melanzane"
+    ];
+
+    const desserts = [
+      "tortino di mandorle",
+      "vulcano di cioccolato",
+      "tiramisu",
+      "crostata di arance",
+      "crostata di albicocche",
+      "cheese cake",
+      "torta di limone"
+    ];
+
+    const antipasti = [
+    "tortino di riso con pesce spada",
+    "gamberetti avvolti con pancetta",
+    "rotolini di speck",
+    "polpettine di tonno"
+    ];
+
+      
+    // Days of the week for dinner
+    const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+    // Fisher-Yates shuffle algorithm to randomize an array
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Animate the cell like a slot machine.
+    // The animation lasts for 'duration' milliseconds.
+    function animateCell(cell, finalDish, duration) {
+      const startTime = Date.now();
+      function update() {
+        const elapsed = Date.now() - startTime;
+        if (elapsed < duration) {
+          // Compute progress factor (0 to 1)
+          const progress = elapsed / duration;
+          // Increase the delay from 50ms to about 300ms as progress advances
+          const delay = 50 + (250 * progress);
+          // Show a random dish name (readable and constantly changing)
+          cell.textContent = dishes[Math.floor(Math.random() * dishes.length)];
+          setTimeout(update, delay);
+        } else {
+          // End animation by showing the final dish
+          cell.textContent = finalDish;
+        }
+      }
+      update();
+    }
+
+    // Generate the dinner plan.
+    // Locked days keep their dish; unlocked days animate and get new unique dishes.
+    function generatePlan() {
+      let lockedDishes = [];
+      let unlockedDays = [];
+
+      // Determine locked and unlocked days.
+      daysOfWeek.forEach(day => {
+        const dishCell = document.getElementById(day.toLowerCase() + "Dish");
+        const lockCheckbox = document.getElementById(day.toLowerCase() + "Lock");
+        if (lockCheckbox.checked && dishCell.textContent.trim() !== "") {
+          lockedDishes.push(dishCell.textContent.trim());
+        } else {
+          unlockedDays.push(day);
+        }
+      });
+
+      // Available dishes exclude any locked ones.
+      let availableDishes = dishes.filter(dish => !lockedDishes.includes(dish));
+      availableDishes = shuffle(availableDishes);
+
+      // For each unlocked day, pick a unique final dish and animate it.
+      unlockedDays.forEach((day, index) => {
+        const dishCell = document.getElementById(day.toLowerCase() + "Dish");
+        const finalDish = availableDishes[index] || "";
+        animateCell(dishCell, finalDish, 3000); // 3000ms = 3 seconds
+      });
+    }
+
+    // Attach the event listener to the generate button.
+    document.getElementById("generateButton").addEventListener("click", generatePlan);
+  </script>
+</body>
+</html>
